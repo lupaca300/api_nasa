@@ -5,20 +5,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:nasa_api/models/api_count_response.dart';
+import 'package:nasa_api/provider/stream_controller.dart';
 
 class NasaProvider extends ChangeNotifier {
   String _api_key = 'wRR1B5Rf3fBwQAY8cfsWoapqSH1g9MCOQNte5oq3';
   int _count = 50;
-  StreamController streamController = StreamController.broadcast();
-  Stream get stream => streamController.stream;
   CancelableOperation? cancelOperation;
-  CancelableOperation? cancelOperation2;
 
   NasaProvider() {
     print("iniciadao NasaProvider");
   }
   Future countRandomApod() async {
-    print("estamos en getondisplay");
 //https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY
     try {
       Uri url = Uri.https('api.nasa.gov', '/planetary/apod', {
@@ -105,7 +102,7 @@ class NasaProvider extends ChangeNotifier {
       onCancel: () => '',
     );
     List<ApiCountResponse> value = await cancelOperation?.value;
-    print(value);
+
     streamController.sink.add(value);
   }
 
@@ -115,7 +112,7 @@ class NasaProvider extends ChangeNotifier {
       onCancel: () => '',
     );
     var value = await cancelOperation?.value;
-    print(value);
+
     streamController.sink.add(value);
   }
 
@@ -126,7 +123,7 @@ class NasaProvider extends ChangeNotifier {
     );
     var value = await cancelOperation?.value;
     value ??= [];
-    print(value);
+
     streamController.sink.add(value);
   }
 }

@@ -9,6 +9,8 @@ import 'package:nasa_api/models/api_count_response.dart';
 
 import 'package:nasa_api/provider/nasa_provider.dart';
 import 'package:nasa_api/provider/stream_controller.dart';
+import 'package:nasa_api/provider/stream_controller.dart';
+import 'package:nasa_api/widgets/widgetsScreenApod/sliverBarDateApod.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -21,23 +23,27 @@ class ScreenApod extends StatefulWidget {
 
 class __ScreenApodState extends State<ScreenApod> {
   late NasaProvider nasaP;
+  late Stream stream;
+
+  DateTime? endDate = null;
+  DateTime? initDate = null;
+
   @override
   void initState() {
-    print('init iniciado');
+    streamController = StreamController.broadcast();
     nasaP = Provider.of<NasaProvider>(context, listen: false);
-
-    nasaP.getCountRandomApod(); // TODO: implement initState
+    stream = streamController.stream;
+    nasaP.getCountRandomApod();
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    nasaP.cancelOperation?.cancel();
+    streamController.close();
     super.dispose();
   }
 
-  DateTime? endDate = null;
-  DateTime? initDate = null;
   var a;
   @override
   Widget build(BuildContext context) {
@@ -48,71 +54,7 @@ class __ScreenApodState extends State<ScreenApod> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              leadingWidth: 0,
-              backgroundColor: Color.fromARGB(255, 1, 48, 90),
-              title: ListTile(
-                  leading: Container(
-                    child: FloatingActionButton(
-                      heroTag: 'hero_apod_floatingbutton',
-                      tooltip: 'select your date',
-                      backgroundColor: Color.fromARGB(255, 3, 66, 103),
-                      child: Icon(
-                        Icons.calendar_month_outlined,
-                        color: Color.fromARGB(255, 181, 226, 255),
-                      ),
-                      onPressed: () async {
-                        _selectDate();
-                        print("presionamos ");
-                      },
-                    ),
-                  ),
-                  title: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color.fromARGB(255, 143, 3, 3),
-                            Color.fromARGB(255, 48, 0, 0),
-                            Color.fromARGB(255, 58, 5, 5),
-                            Color.fromARGB(255, 118, 3, 3),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        )),
-                    child: Container(
-                        child: ListTile(
-                      leading: Icon(
-                        applyTextScaling: true,
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        Icons.arrow_circle_left_outlined,
-                        size: 30,
-                      ),
-                      title: Text(
-                          textAlign: TextAlign.center,
-                          ' SELECT DATE AND VIEW PHOTOS',
-                          maxLines: 2,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 246, 246, 246),
-                          )),
-                    )),
-                  )),
-              leading: Icon(null),
-              expandedHeight: 70.0,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: EdgeInsets.all(10),
-                background: Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                        Color.fromARGB(255, 8, 60, 84),
-                        Color.fromARGB(195, 0, 0, 0),
-                      ])),
-                ),
-              ),
-            ),
+            SliverBarDateApod(context, streamController, nasaP),
             SliverAppBar(
               floating: true,
               leadingWidth: 0,
@@ -180,7 +122,7 @@ class __ScreenApodState extends State<ScreenApod> {
                           onTap: () {
                             print(initDate);
                             print(endDate);
-                            nasaP.streamController.sink.add(null);
+                            streamController.sink.add(null);
                             nasaP.getApodDateInitEnd(initDate, endDate);
                           },
                           child: Icon(
@@ -195,12 +137,8 @@ class __ScreenApodState extends State<ScreenApod> {
               ]),
             ),
             StreamBuilder(
-              stream: nasaP.stream,
+              stream: stream,
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                print("Stream builder");
-                print(snapshot.hasData);
-                print(snapshot.data);
-
                 if (!snapshot.hasData) {
                   return SliverGrid(
                       delegate: SliverChildBuilderDelegate(
@@ -218,9 +156,6 @@ class __ScreenApodState extends State<ScreenApod> {
                           childAspectRatio: 1,
                           crossAxisCount: 1,
                           mainAxisSpacing: 10));
-                }
-                if (snapshot.connectionState == ConnectionState.active) {
-                  print("conexion activa");
                 }
 
                 return SliverGrid(
@@ -266,22 +201,6 @@ class __ScreenApodState extends State<ScreenApod> {
         ),
       ),
     );
-  }
-
-  Future<void> _selectDate() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.timestamp(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
-    );
-    if (pickedDate != null) {
-      nasaP.streamController.sink.add(null);
-      await nasaP.cancelOperation?.cancel();
-      nasaP.getApodOneDate(pickedDate);
-    } else {
-      print('no select');
-    }
   }
 
   Future<void> _selectDateInit() async {
