@@ -96,6 +96,8 @@ class NasaProvider extends ChangeNotifier {
     }
   }
 
+  marsRoverPhotos() {}
+
   getCountRandomApod() async {
     cancelOperation = CancelableOperation.fromFuture(
       countRandomApod(),

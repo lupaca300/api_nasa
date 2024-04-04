@@ -1,11 +1,43 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:nasa_api/provider/nasa_provider.dart';
+import 'package:nasa_api/provider/stream_controller.dart';
+import 'package:provider/provider.dart';
 
-class ScreenRovers extends StatelessWidget {
-  const ScreenRovers({super.key});
+class ScreenPothosRovers extends StatefulWidget {
+  const ScreenPothosRovers({super.key});
+
+  @override
+  State<ScreenPothosRovers> createState() => _ScreenPothosRoversState();
+}
+
+class _ScreenPothosRoversState extends State<ScreenPothosRovers> {
+  late Stream stream;
+  late NasaProvider nasaP;
+  Map? args;
+  @override
+  void initState() {
+    streamController = StreamController.broadcast();
+    stream = streamController.stream;
+    nasaP = Provider.of<NasaProvider>(context, listen: false);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    streamController.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    args = ModalRoute.of(context)?.settings.arguments as Map;
+    print("args : ${args}");
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -44,6 +76,17 @@ class ScreenRovers extends StatelessWidget {
                       ])),
                 ),
               )),
+          StreamBuilder(
+            stream: stream,
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return SliverGrid(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return null;
+                  }),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 1));
+            },
+          )
         ],
       )),
     );

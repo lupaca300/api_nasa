@@ -1,6 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:gradient_elevated_button/gradient_elevated_button.dart';
 import 'package:nasa_api/widgets/icon_rover.dart';
+import 'package:nasa_api/widgets/widgetsScreenApod/select_DateTime.dart';
+
+DateTime? dateRover = null;
 
 Column viewOptions(context) {
   return Column(
@@ -62,12 +67,7 @@ Column viewOptions(context) {
                 color: Color.fromARGB(255, 181, 226, 255),
               ),
               onPressed: () async {
-                await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2015, 8),
-                  lastDate: DateTime(2101),
-                );
+                dateRover = await selectDateRover(context);
               },
             ),
             Container(
@@ -92,7 +92,7 @@ Column viewOptions(context) {
                   },
                   child: Text(
                     textAlign: TextAlign.center,
-                    'SELECT DATE AND VIEW PHOTOS',
+                    'SELECT DATE AND VIEW PHOTOS of ROVER',
                     maxLines: 2,
                     style: TextStyle(color: Colors.white),
                   )),
@@ -117,47 +117,45 @@ Future<void> _selectRover(context) async {
               style: TextStyle(color: Colors.white),
             ),
           ),
-          children: <Row>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(children: [
-                  iconRoverShowDialog(
-                    'curiosity',
-                    context,
-                  ),
-                  Text(
-                    'Curiosity',
-                    style: TextStyle(color: Colors.white),
-                  )
-                ]),
-                Column(children: [
-                  iconRoverShowDialog(
-                    'spirit',
-                    context,
-                  ),
-                  Text(
-                    'spirit',
-                    style: TextStyle(color: Colors.white),
-                  )
-                ]),
-                Column(children: [
-                  iconRoverShowDialog(
-                    'opportunity',
-                    context,
-                  ),
-                  Text(
-                    'Opportunity',
-                    style: TextStyle(color: Colors.white),
-                  )
-                ]),
-              ],
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    Column(children: [
+                      iconRoverShowDialog('curiosity', context, dateRover),
+                      Text(
+                        'Curiosity',
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ]),
+                    Column(children: [
+                      iconRoverShowDialog('spirit', context, dateRover),
+                      Text(
+                        'spirit',
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ]),
+                    Column(children: [
+                      iconRoverShowDialog('opportunity', context, dateRover),
+                      Text(
+                        'Opportunity',
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ]),
+                  ],
+                ),
+              ),
             )
           ],
         );
       });
   if (rover != null) {
-    Navigator.pushNamed(context, 'screen-rovers');
+    Navigator.pushNamed(context, 'screen-rovers', arguments: {
+      'rover': rover.toString(),
+      'dateRover': dateRover.toString()
+    });
   } else {
     print("nulo");
   }

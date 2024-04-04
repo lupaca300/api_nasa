@@ -1,16 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:nasa_api/models/api_count_response.dart';
 
 import 'package:nasa_api/provider/nasa_provider.dart';
 import 'package:nasa_api/provider/stream_controller.dart';
-import 'package:nasa_api/provider/stream_controller.dart';
 import 'package:nasa_api/widgets/widgetsScreenApod/sliverBarDateApod.dart';
+import 'package:nasa_api/widgets/widgetsScreenApod/sliverInitEndApod.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -55,87 +52,8 @@ class __ScreenApodState extends State<ScreenApod> {
         child: CustomScrollView(
           slivers: [
             SliverBarDateApod(context, streamController, nasaP),
-            SliverAppBar(
-              floating: true,
-              leadingWidth: 0,
-              backgroundColor: Color.fromARGB(255, 2, 25, 40),
-              title: Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Color.fromARGB(255, 3, 66, 103)),
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)))),
-                        onPressed: () {
-                          _selectDateInit();
-                        },
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.date_range_outlined,
-                              color: Color.fromARGB(255, 181, 226, 255),
-                            ),
-                            Text(
-                              "init",
-                              style: TextStyle(color: Colors.white),
-                            )
-                          ],
-                        )),
-                    ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStatePropertyAll(
-                                Color.fromARGB(255, 3, 66, 103)),
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)))),
-                        onPressed: () {
-                          _selectDateEnd();
-                        },
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.date_range_outlined,
-                              color: Color.fromARGB(255, 181, 226, 255),
-                            ),
-                            Text("end", style: TextStyle(color: Colors.white))
-                          ],
-                        )),
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color.fromARGB(255, 143, 3, 3),
-                                Color.fromARGB(255, 48, 0, 0),
-                                Color.fromARGB(255, 58, 5, 5),
-                                Color.fromARGB(255, 118, 3, 3),
-                              ])),
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: GestureDetector(
-                          onTap: () {
-                            print(initDate);
-                            print(endDate);
-                            streamController.sink.add(null);
-                            nasaP.getApodDateInitEnd(initDate, endDate);
-                          },
-                          child: Icon(
-                            Icons.search,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ]),
-            ),
+            sliverInitEndApod(
+                context, nasaP, streamController, initDate, endDate),
             StreamBuilder(
               stream: stream,
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -201,33 +119,5 @@ class __ScreenApodState extends State<ScreenApod> {
         ),
       ),
     );
-  }
-
-  Future<void> _selectDateInit() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context, //
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2015),
-      lastDate: DateTime.now(),
-    );
-    if (pickedDate != null) {
-      initDate = pickedDate;
-    } else {
-      print('no select');
-    }
-  }
-
-  Future<void> _selectDateEnd() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2024),
-      lastDate: DateTime.now(),
-    );
-    if (pickedDate != null) {
-      endDate = pickedDate;
-    } else {
-      print('no select');
-    }
   }
 }
