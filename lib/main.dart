@@ -3,7 +3,6 @@ import 'package:hive/hive.dart';
 import 'package:nasa_api/provider/nasa_provider.dart';
 import 'package:nasa_api/screens/details_screen.dart';
 import 'package:nasa_api/screens/screen_apod.dart';
-import 'package:nasa_api/screens/screen_photos_rovers.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:nasa_api/screens/home.dart';
@@ -40,7 +39,6 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           initialRoute: 'myHome',
           routes: {
-            'screen-rovers': (context) => ScreenPothosRovers(),
             'screen-apod': (context) => ScreenApod(),
             'details-screen': (context) => DetailsScreen(),
             'myHome': (context) => MyHome(),

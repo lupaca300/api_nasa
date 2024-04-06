@@ -2,10 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gradient_elevated_button/gradient_elevated_button.dart';
+import 'package:nasa_api/screens/screen_photos_rovers.dart';
 import 'package:nasa_api/widgets/icon_rover.dart';
 import 'package:nasa_api/widgets/widgetsScreenApod/select_DateTime.dart';
 
-DateTime? dateRover = null;
+DateTime? dateRoverK;
 
 Column viewOptions(context) {
   return Column(
@@ -67,7 +68,8 @@ Column viewOptions(context) {
                 color: Color.fromARGB(255, 181, 226, 255),
               ),
               onPressed: () async {
-                dateRover = await selectDateRover(context);
+                dateRoverK = await selectDateRover(
+                    context, DateTime(2004, 01, 05), DateTime(2024, 02, 29));
               },
             ),
             Container(
@@ -124,21 +126,30 @@ Future<void> _selectRover(context) async {
                 child: Row(
                   children: [
                     Column(children: [
-                      iconRoverShowDialog('curiosity', context, dateRover),
+                      iconRoverShowDialog(
+                        'curiosity',
+                        context,
+                      ),
                       Text(
                         'Curiosity',
                         style: TextStyle(color: Colors.white),
                       )
                     ]),
                     Column(children: [
-                      iconRoverShowDialog('spirit', context, dateRover),
+                      iconRoverShowDialog(
+                        'spirit',
+                        context,
+                      ),
                       Text(
                         'spirit',
                         style: TextStyle(color: Colors.white),
                       )
                     ]),
                     Column(children: [
-                      iconRoverShowDialog('opportunity', context, dateRover),
+                      iconRoverShowDialog(
+                        'opportunity',
+                        context,
+                      ),
                       Text(
                         'Opportunity',
                         style: TextStyle(color: Colors.white),
@@ -152,10 +163,18 @@ Future<void> _selectRover(context) async {
         );
       });
   if (rover != null) {
-    Navigator.pushNamed(context, 'screen-rovers', arguments: {
-      'rover': rover.toString(),
-      'dateRover': dateRover.toString()
-    });
+    if (dateRoverK == null) {
+      dateRoverK = DateTime(2004, 01, 05);
+    }
+    print("rover : ${rover} , dataRover : ${dateRoverK}");
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) {
+        return ScreenPothosRovers(
+          dateRover: dateRoverK,
+          rover: rover,
+        );
+      },
+    ));
   } else {
     print("nulo");
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-Padding iconRoverShowDialog(String nameRover, context, dateRover) {
+Padding iconRoverShowDialog(nameRover, context) {
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 5),
     child: Container(

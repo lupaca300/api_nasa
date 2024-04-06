@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:nasa_api/models/api_count_response.dart';
+import 'package:nasa_api/models/api_rover_date.dart';
+import 'package:nasa_api/models/photo_rover.dart';
 import 'package:nasa_api/provider/stream_controller.dart';
 
 class NasaProvider extends ChangeNotifier {
@@ -96,7 +98,77 @@ class NasaProvider extends ChangeNotifier {
     }
   }
 
-  marsRoverPhotos() {}
+  marsRoverPhotos(dateRover, rover) async {
+    if (dateRover == null) {
+      dateRover = '2005-6-3';
+    } else {
+      dateRover = DateFormat('yyyy-MM-dd').format(dateRover).toString();
+    }
+    //  https: //api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=2015-6-3&api_key=DEMO_KEY
+    try {
+      Uri url = Uri.https(
+          'api.nasa.gov', '/mars-photos/api/v1/rovers/${rover}/photos', {
+        'api_key': _api_key,
+        'earth_date': dateRover,
+      });
+      print(url);
+      http.Response response = await http.get(url);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        ApiRoverDate apiR = ApiRoverDate.fromRawJson(response.body);
+        return apiR.photos;
+      } else {
+        return List.empty();
+      }
+    } catch (e) {
+      print("error${e}");
+      return List.empty();
+    }
+  }
+
+  marsRoverPhotosSol(sol, nameRover) async {
+    if (sol == null || sol == 0) {
+      sol = 1;
+    }
+    Uri url = Uri.https(
+        'api.nasa.gov', '/mars-photos/api/v1/rovers/${nameRover}/photos', {
+      'api_key': _api_key,
+      'sol': sol,
+    });
+    http.Response response = await http.get(url);
+    print(response.statusCode);
+    try {
+      if (response.statusCode == 200) {
+        ApiRoverDate apiR = ApiRoverDate.fromRawJson(response.body);
+        return apiR.photos;
+      } else {
+        return List.empty();
+      }
+    } catch (e) {
+      print("error${e}");
+      return List.empty();
+    }
+  }
+
+  getMarsRoverPhotosSol(sol, nameRover) async {
+    cancelOperation = CancelableOperation.fromFuture(
+      marsRoverPhotosSol(sol, nameRover),
+      onCancel: () => '',
+    );
+    List list = await cancelOperation?.value;
+    print(list);
+    streamController.sink.add(list);
+  }
+
+  getMarsRoverPhotos(dateRover, rover) async {
+    cancelOperation = CancelableOperation.fromFuture(
+      marsRoverPhotos(dateRover, rover),
+      onCancel: () => '',
+    );
+    List list = await cancelOperation?.value;
+    print(list);
+    streamController.sink.add(list);
+  }
 
   getCountRandomApod() async {
     cancelOperation = CancelableOperation.fromFuture(
